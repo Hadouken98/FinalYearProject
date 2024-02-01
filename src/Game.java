@@ -2,6 +2,8 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 public class Game {
     private DungeonGraph dungeonGraph;
     private Player player;
@@ -18,27 +20,39 @@ public class Game {
     // Explore possible directions from a given room and remove walls between rooms.
     // Mark the final room as the goal to reach.
     // Recursively call the method to continue generating the maze from new rooms.
-    private void generateMaze(int row, int col, int[][] walls, Random random, int finalRoomRow, int finalRoomCol) {
-        int[][] directions = {{0, -2}, {0, 2}, {-2, 0}, {2, 0}}; // Define the possible directions (up, down, left, right)
+    private int[] generateMaze(int row, int col, int[][] walls, Random random, List<int[]> accessibleRooms) {
+        int[][] directions = {{0, -2}, {0, 2}, {-2, 0}, {2, 0}};
+
+        walls[row][col] = 0;
+        accessibleRooms.add(new int[]{row, col});
+
+        int[] lastRoom = new int[]{row, col};  // Keep track of the last room
+
+        for (int i = directions.length - 1; i > 0; i--) {
+            int index = random.nextInt(i + 1);
+            int[] temp = directions[index];
+            directions[index] = directions[i];
+            directions[i] = temp;
+        }
 
         for (int[] direction : directions) {
             int newRow = row + direction[0];
             int newCol = col + direction[1];
 
-            // Check if the new room is within the bounds of the maze and hasn't been visited before
             if (newRow >= 0 && newRow < walls.length && newCol >= 0 && newCol < walls.length && walls[newRow][newCol] != 0) {
-                walls[newRow][newCol] = 0; // Remove the wall between the current room and the new room
-                walls[row + direction[0] / 2][col + direction[1] / 2] = 0; // Remove the wall between the current room and the new room through which we pass
+                walls[row + direction[0] / 2][col + direction[1] / 2] = 0;
 
-                // Check if the new room is the final room
-                if (newRow == finalRoomRow && newCol == finalRoomCol) {
-                    walls[finalRoomRow][finalRoomCol] = 2; // Mark the final room as the goal to reach
-                }
+                // Store the center of the new room in the accessible rooms list
+                accessibleRooms.add(new int[]{row + direction[0], col + direction[1]});
 
-                generateMaze(newRow, newCol, walls, random, finalRoomRow, finalRoomCol); // Recursively generate the maze from the new room
+                int[] result = generateMaze(newRow, newCol, walls, random, accessibleRooms);
+                lastRoom = result != null ? result : lastRoom;  // Update the last room if a new one is found
             }
         }
+
+        return lastRoom;
     }
+
 
 
     private int generateRandomSize(int minSize, int maxSize) {
@@ -89,14 +103,21 @@ public class Game {
         // Generate the dungeon walls as all walls initially
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                walls[i][j] = 1;
+                walls[i][j] = 1; // Initialize all rooms as walls
             }
         }
 
-        // Generate the maze starting from the top-left corner
-        int finalRoomRow = size - 1;
-        int finalRoomCol = size - 1;
-        generateMaze(0, 0, walls, random, finalRoomRow, finalRoomCol);
+        List<int[]> accessibleRooms = new ArrayList<>();
+        int[] finalRoom = generateMaze(0, 0, walls, random, accessibleRooms);
+
+        // Print accessible rooms and final room for debugging
+        System.out.println("Accessible Rooms:");
+        for (int[] room : accessibleRooms) {
+            System.out.println("(" + room[0] + ", " + room[1] + ")");
+        }
+        System.out.println("Final Room: (" + finalRoom[0] + ", " + finalRoom[1] + ")");
+
+        walls[finalRoom[0]][finalRoom[1]] = 0; // Open the final room
 
         return walls;
     }
@@ -114,42 +135,51 @@ public class Game {
             int playerCol = player.getCol();
 
             switch (move.toLowerCase()) {
-                case "up" -> {
+                case "up":
                     if (playerRow > 0 && dungeonGraph.getWalls()[playerRow - 1][playerCol] != 1) {
                         player.moveUp();
                     } else {
                         System.out.println("There is a wall blocking your way.");
                     }
-                }
-                case "down" -> {
+                    break;
+                case "down":
                     if (playerRow < lastRoomIndex && dungeonGraph.getWalls()[playerRow + 1][playerCol] != 1) {
                         player.moveDown();
                     } else {
                         System.out.println("There is a wall blocking your way.");
                     }
-                }
-                case "left" -> {
+                    break;
+                case "left":
                     if (playerCol > 0 && dungeonGraph.getWalls()[playerRow][playerCol - 1] != 1) {
                         player.moveLeft();
                     } else {
                         System.out.println("There is a wall blocking your way.");
                     }
-                }
-                case "right" -> {
+                    break;
+                case "right":
                     if (playerCol < lastRoomIndex && dungeonGraph.getWalls()[playerRow][playerCol + 1] != 1) {
                         player.moveRight();
                     } else {
                         System.out.println("There is a wall blocking your way.");
                     }
-                }
-                case "quit" -> gameRunning = false;
-                default -> System.out.println("Invalid move. Please try again.");
+                    break;
+                case "quit":
+                    gameRunning = false;
+                    break;
+                default:
+                    System.out.println("Invalid move. Please try again.");
+                    continue;
             }
 
             // Check if the player has reached the last room
-            if (player.getRow() == lastRoomIndex && player.getCol() == lastRoomIndex) {
+            if (player.getRow() == dungeonGraph.getWalls().length - 1 && player.getCol() == dungeonGraph.getWalls().length - 1) {
                 System.out.println("Congratulations! You have reached the final room. You win!");
                 gameRunning = false;
+                System.out.println("Player position: (" + player.getRow() + ", " + player.getCol() + ")");
+                System.out.println("Last room position: (" + (dungeonGraph.getWalls().length - 1) + ", " + (dungeonGraph.getWalls().length - 1) + ")");
+            } else {
+                System.out.println("Player position: (" + player.getRow() + ", " + player.getCol() + ")");
+                System.out.println("Last room position: (" + (dungeonGraph.getWalls().length - 1) + ", " + (dungeonGraph.getWalls().length - 1) + ")");
             }
         }
 
@@ -169,4 +199,3 @@ public class Game {
     }
 }
 
-// Mazes almost always end up in "S" shaped mazes
