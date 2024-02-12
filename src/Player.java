@@ -16,17 +16,22 @@ public class Player {
             return false;
         }
 
+        // Check if there is a wall in the new position
+        if (dungeonGraph.getWalls()[newRow][newCol] != 0) {
+            return false;
+        }
+
         // Check if there is a wall between the current position and the new position
-        if (row < newRow && dungeonGraph.getWalls()[newRow][col] != 0) {
+        if (row < newRow && dungeonGraph.getWalls()[row + 1][col] != 0) {
             return false;
         }
-        if (row > newRow && dungeonGraph.getWalls()[row][col] != 0) {
+        if (row > newRow && dungeonGraph.getWalls()[row - 1][col] != 0) {
             return false;
         }
-        if (col < newCol && dungeonGraph.getWalls()[row][newCol] != 0) {
+        if (col < newCol && dungeonGraph.getWalls()[row][col + 1] != 0) {
             return false;
         }
-        if (col > newCol && dungeonGraph.getWalls()[row][col] != 0) {
+        if (col > newCol && dungeonGraph.getWalls()[row][col - 1] != 0) {
             return false;
         }
 

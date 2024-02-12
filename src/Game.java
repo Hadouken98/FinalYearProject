@@ -53,8 +53,12 @@ public class Game {
         return lastRoom;
     }
 
-
-
+    public DungeonGraph getDungeonGraph() {
+        return dungeonGraph;
+    }
+    public Player getPlayer() {
+        return player;
+    }
     private int generateRandomSize(int minSize, int maxSize) {
         Random random = new Random();
         return random.nextInt(maxSize - minSize + 1) + minSize;

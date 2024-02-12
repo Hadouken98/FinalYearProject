@@ -13,18 +13,46 @@ public class DungeonGraph {
         return walls.length; // Returns the number of rooms in the dungeon based on the size of the walls array
     }
 
-    public void renderDungeon(Player player) {
-        for (int i = 0; i < walls.length; i++) {
-            for (int j = 0; j < walls[i].length; j++) {
-                if (i == player.getRow() && j == player.getCol()) {
-                    System.out.print("P"); // Print "P" to represent the player's position
-                } else if (walls[i][j] != 0) {
-                    System.out.print("#"); // Print "#" to represent walls
-                } else {
-                    System.out.print("."); // Print "." to represent empty spaces
-                }
-            }
-            System.out.println(); // Move to the next line after printing each row
+    public String renderDungeon(Player player) {
+        StringBuilder output = new StringBuilder();
+
+        int mazeSize = walls.length;
+
+        // Top border
+        output.append("+");
+        for (int i = 0; i < mazeSize; i++) {
+            output.append("---+");
         }
+        output.append("\n");
+
+        // Maze cells
+        for (int i = 0; i < mazeSize; i++) {
+            output.append("|");
+            for (int j = 0; j < mazeSize; j++) {
+                if (i == player.getRow() && j == player.getCol()) {
+                    output.append(" 🤠 "); // Player's position
+                } else if (walls[i][j] != 0) {
+                    output.append("█"); // Wall
+                } else {
+                    output.append("   "); // Empty space
+                }
+                output.append("|");
+            }
+            output.append(" " + i + "\n"); // Row index
+            output.append("+");
+            for (int j = 0; j < mazeSize; j++) {
+                output.append("---+");
+            }
+            output.append("\n");
+        }
+
+        // Column indices
+        output.append(" ");
+        for (int i = 0; i < mazeSize; i++) {
+            output.append(" " + i + "  ");
+        }
+        output.append("\n");
+
+        return output.toString();
     }
 }
