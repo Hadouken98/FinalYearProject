@@ -96,19 +96,39 @@ public class GameGUI extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            // Save the current player position before moving
+            int initialRow = game.getPlayer().getRow();
+            int initialCol = game.getPlayer().getCol();
+
             // Handle player movement based on the button pressed
             switch (direction) {
                 case "up":
-                    game.getPlayer().moveUp();
+                    if (game.getPlayer().isValidMove(initialRow - 1, initialCol)) {
+                        game.getPlayer().moveUp();
+                    } else {
+                        gameOutput.append("There is a wall blocking your way.\n");
+                    }
                     break;
                 case "down":
-                    game.getPlayer().moveDown();
+                    if (game.getPlayer().isValidMove(initialRow + 1, initialCol)) {
+                        game.getPlayer().moveDown();
+                    } else {
+                        gameOutput.append("There is a wall blocking your way.\n");
+                    }
                     break;
                 case "left":
-                    game.getPlayer().moveLeft();
+                    if (game.getPlayer().isValidMove(initialRow, initialCol - 1)) {
+                        game.getPlayer().moveLeft();
+                    } else {
+                        gameOutput.append("There is a wall blocking your way.\n");
+                    }
                     break;
                 case "right":
-                    game.getPlayer().moveRight();
+                    if (game.getPlayer().isValidMove(initialRow, initialCol + 1)) {
+                        game.getPlayer().moveRight();
+                    } else {
+                        gameOutput.append("There is a wall blocking your way.\n");
+                    }
                     break;
             }
 
@@ -117,17 +137,18 @@ public class GameGUI extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Game game = new Game(5, 10, 0, 0);
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(() -> {
+                Game game = new Game(5, 10, 0, 0);
 
-            if (game.isDungeonSolvable()) {
-                System.out.println("Dungeon is solvable.");
-                new GameGUI(game);
-            } else {
-                System.out.println("Dungeon is not solvable. Regenerating...");
-                main(args); // Restart the game with a new dungeon
-            }
-        });
+                if (game.isDungeonSolvable()) {
+                    System.out.println("Dungeon is solvable.");
+                    new GameGUI(game);
+                } else {
+                    System.out.println("Dungeon is not solvable. Regenerating...");
+                    main(args); // Restart the game with a new dungeon
+                }
+            });
+        }
     }
-}
+

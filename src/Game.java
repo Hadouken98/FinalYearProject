@@ -8,6 +8,8 @@ public class Game {
     private DungeonGraph dungeonGraph;
     private Player player;
 
+    private int[] finalRoom;
+
     public Game(int minSize, int maxSize, int initialRow, int initialCol) {
         int size = generateRandomSize(minSize, maxSize);
         int[][] walls = generateDungeonWalls(size);
@@ -26,7 +28,7 @@ public class Game {
         walls[row][col] = 0;
         accessibleRooms.add(new int[]{row, col});
 
-        int[] lastRoom = new int[]{row, col};  // Keep track of the last room
+        int[] lastRoom = new int[]{row, col};
 
         for (int i = directions.length - 1; i > 0; i--) {
             int index = random.nextInt(i + 1);
@@ -42,11 +44,8 @@ public class Game {
             if (newRow >= 0 && newRow < walls.length && newCol >= 0 && newCol < walls.length && walls[newRow][newCol] != 0) {
                 walls[row + direction[0] / 2][col + direction[1] / 2] = 0;
 
-                // Store the center of the new room in the accessible rooms list
-                accessibleRooms.add(new int[]{row + direction[0], col + direction[1]});
-
                 int[] result = generateMaze(newRow, newCol, walls, random, accessibleRooms);
-                lastRoom = result != null ? result : lastRoom;  // Update the last room if a new one is found
+                lastRoom = result != null ? result : lastRoom;
             }
         }
 
@@ -71,7 +70,7 @@ public class Game {
         int[][] walls = dungeonGraph.getWalls();
 
         int startRoom = 0;
-        int finalRoom = walls.length - 1;
+        int finalRoom = walls.length - 1; // Use the class member variable instead
 
         boolean[] visited = new boolean[walls.length];
         Queue<Integer> queue = new LinkedList<>();
@@ -114,12 +113,15 @@ public class Game {
         List<int[]> accessibleRooms = new ArrayList<>();
         int[] finalRoom = generateMaze(0, 0, walls, random, accessibleRooms);
 
-        // Print accessible rooms and final room for debugging
+        // Print accessible rooms
         System.out.println("Accessible Rooms:");
         for (int[] room : accessibleRooms) {
             System.out.println("(" + room[0] + ", " + room[1] + ")");
         }
-        System.out.println("Final Room: (" + finalRoom[0] + ", " + finalRoom[1] + ")");
+
+        // Randomize the final room
+        int randomIndex = random.nextInt(accessibleRooms.size());
+        finalRoom = accessibleRooms.get(randomIndex);
 
         walls[finalRoom[0]][finalRoom[1]] = 0; // Open the final room
 
