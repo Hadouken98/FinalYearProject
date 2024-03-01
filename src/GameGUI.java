@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.util.Random;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -130,7 +131,7 @@ public class GameGUI extends JFrame {
             int initialCol = game.getPlayer().getCol();
 
             // Start the timer when the player makes the first move
-            if (!timer.isRunning()) {
+            if (!game.getPlayer().isTimerRunning()) {
                 game.getPlayer().startTimer();
                 startTime = System.currentTimeMillis(); // Save the start time
                 timer.start();
@@ -163,6 +164,14 @@ public class GameGUI extends JFrame {
                         moved = true;
                     }
                     break;
+            }
+
+            // Shift the walls randomly after each move
+            if (moved) {
+                Random random = new Random();
+                if (random.nextInt(8) == 0) {
+                    game.shiftWallsRandomly(game.getPlayer());
+                }
             }
 
             // Update the UI after each move

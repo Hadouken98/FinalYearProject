@@ -127,10 +127,39 @@ public class Game {
 
         return walls;
     }
+
+    void shiftWallsRandomly(Player player) {
+        int[][] walls = dungeonGraph.getWalls();
+        Random random = new Random();
+
+        // Determine the portion of the maze to shift
+        int shiftStartRow = random.nextInt(walls.length / 2); // Increase the range of rows to be shifted
+        int shiftEndRow = random.nextInt(walls.length / 2) + walls.length / 2; // Increase the range of rows to be shifted
+        int shiftStartCol = random.nextInt(walls.length / 2); // Increase the range of columns to be shifted
+        int shiftEndCol = random.nextInt(walls.length / 2) + walls.length / 2; // Increase the range of columns to be shifted
+
+        // Randomly shift the walls within the determined portion
+        for (int row = shiftStartRow; row <= shiftEndRow; row++) {
+            for (int col = shiftStartCol; col <= shiftEndCol; col++) {
+                // Skip shifting the walls around the player's current position
+                if (row == player.getRow() && col == player.getCol()) {
+                    continue;
+                }
+
+                // Increase the probability of shifting walls
+                if (random.nextDouble() < 0.75) { // Adjust the probability as desired
+                    walls[row][col] = random.nextInt(2); // 0 represents no wall, 1 represents a wall
+                }
+            }
+        }
+
+        dungeonGraph.setWalls(walls);
+    }
     public void run() {
         Scanner scanner = new Scanner(System.in);
         boolean gameRunning = true;
         int lastRoomIndex = dungeonGraph.getNumRooms() - 1;
+        Random random = new Random();
 
         while (gameRunning) {
             dungeonGraph.renderDungeon(player);
@@ -178,14 +207,17 @@ public class Game {
             }
 
             // Check if the player has reached the last room
-            if (player.getRow() == dungeonGraph.getWalls().length - 1 && player.getCol() == dungeonGraph.getWalls().length - 1) {
+            if (player.getRow() == lastRoomIndex && player.getCol() == lastRoomIndex) {
                 System.out.println("Congratulations! You have reached the final room. You win!");
                 gameRunning = false;
-                System.out.println("Player position: (" + player.getRow() + ", " + player.getCol() + ")");
-                System.out.println("Last room position: (" + (dungeonGraph.getWalls().length - 1) + ", " + (dungeonGraph.getWalls().length - 1) + ")");
             } else {
                 System.out.println("Player position: (" + player.getRow() + ", " + player.getCol() + ")");
-                System.out.println("Last room position: (" + (dungeonGraph.getWalls().length - 1) + ", " + (dungeonGraph.getWalls().length - 1) + ")");
+                System.out.println("Last room position: (" + lastRoomIndex + ", " + lastRoomIndex + ")");
+            }
+
+            // Check if the walls should be shifted randomly
+            if (random.nextInt(2) == 0) {
+                shiftWallsRandomly(player);
             }
         }
 
