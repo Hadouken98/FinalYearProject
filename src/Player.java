@@ -1,6 +1,9 @@
 public class Player {
     private int row;
     private int col;
+    private int steps; // Step counter
+    private long startTime; // To store the start time when the player starts moving
+    private boolean timerRunning;
 
     private DungeonGraph dungeonGraph;
 
@@ -8,6 +11,8 @@ public class Player {
         this.row = initialRow;
         this.col = initialCol;
         this.dungeonGraph = dungeonGraph;
+        this.steps = 0;
+        this.timerRunning = false;
     }
 
     public boolean isValidMove(int newRow, int newCol) {
@@ -68,5 +73,34 @@ public class Player {
 
     public int getCol() {
         return col; // Return the current column coordinate of the player
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+
+    public void incrementSteps() {
+        steps++;
+    }
+
+    public void startTimer() {
+        startTime = System.currentTimeMillis();
+        timerRunning = true;
+    }
+
+    public void stopTimer() {
+        timerRunning = false;
+    }
+
+    public long getElapsedTime() {
+        if (timerRunning) {
+            return (System.currentTimeMillis() - startTime) / 1000; // Convert to seconds
+        } else {
+            return 0;
+        }
+    }
+
+    public boolean isTimerRunning() {
+        return timerRunning;
     }
 }

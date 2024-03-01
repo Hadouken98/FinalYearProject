@@ -6,9 +6,13 @@ import java.awt.event.ActionListener;
 public class GameGUI extends JFrame {
     private Game game;
     private JTextArea gameOutput;
+    private Timer timer;
+    private long startTime; // To store the start time when the player starts moving
+    private int stepCount; // To count the number of steps/moves
 
     public GameGUI(Game game) {
         this.game = game;
+        this.stepCount = 0;
         initializeUI();
     }
 
@@ -17,6 +21,7 @@ public class GameGUI extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the frame on the screen
+        setResizable(true); // Allow the window to be resizable
         getContentPane().setBackground(Color.LIGHT_GRAY); // Set background color
 
         // Create a panel for the game output
@@ -51,6 +56,10 @@ public class GameGUI extends JFrame {
         // Add the main panel to the frame
         add(mainPanel);
 
+        // Create a timer with a 1-second delay
+        timer = new Timer(1000, new TimerActionListener());
+        timer.setInitialDelay(0); // Start the timer immediately
+
         // Update the UI to reflect the initial game state
         updateUI();
 
@@ -60,7 +69,7 @@ public class GameGUI extends JFrame {
 
     private JButton createStyledButton(String text, String tooltip, String iconPath) {
         JButton button = new JButton(text);
-        button.setToolTipText(tooltip);
+        button.setToolTipText(tooltip + " (" + text.toUpperCase().charAt(0) + ")");
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setFocusPainted(false); // Remove focus border
         button.setForeground(Color.BLUE); // Set text color
@@ -73,6 +82,16 @@ public class GameGUI extends JFrame {
         return button;
     }
 
+    private class TimerActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (game.getPlayer().isTimerRunning()) {
+                long elapsedTime = game.getPlayer().getElapsedTime();
+                setTitle("Dungeon Game - Time: " + elapsedTime + " seconds - Steps: " + stepCount);
+            }
+        }
+    }
+
     private void updateUI() {
         // Clear the game output area
         gameOutput.setText("");
@@ -80,10 +99,20 @@ public class GameGUI extends JFrame {
         // Render the dungeon to the game output area
         gameOutput.append(game.getDungeonGraph().renderDungeon(game.getPlayer()));
 
+        // Display the step count
+        gameOutput.append("\nSteps: " + game.getPlayer().getSteps());
+
         // Check if the player has won
         if (game.getPlayer().getRow() == game.getDungeonGraph().getWalls().length - 1 &&
                 game.getPlayer().getCol() == game.getDungeonGraph().getWalls().length - 1) {
+            game.getPlayer().stopTimer(); // Stop the timer
+            long elapsedTime = game.getPlayer().getElapsedTime();
             gameOutput.append("\nCongratulations! You have reached the final room. You win!");
+            gameOutput.append("\nTime taken: " + elapsedTime + " seconds");
+        } else if (game.getPlayer().isTimerRunning()) {
+            // Display the elapsed time if the player hasn't won yet
+            long elapsedTime = game.getPlayer().getElapsedTime();
+            setTitle("Dungeon Game - Time: " + elapsedTime + " seconds - Steps: " + stepCount);
         }
     }
 
@@ -100,55 +129,64 @@ public class GameGUI extends JFrame {
             int initialRow = game.getPlayer().getRow();
             int initialCol = game.getPlayer().getCol();
 
+            // Start the timer when the player makes the first move
+            if (!timer.isRunning()) {
+                game.getPlayer().startTimer();
+                startTime = System.currentTimeMillis(); // Save the start time
+                timer.start();
+            }
+
             // Handle player movement based on the button pressed
+            boolean moved = false;
             switch (direction) {
                 case "up":
                     if (game.getPlayer().isValidMove(initialRow - 1, initialCol)) {
                         game.getPlayer().moveUp();
-                    } else {
-                        gameOutput.append("There is a wall blocking your way.\n");
+                        moved = true;
                     }
                     break;
                 case "down":
                     if (game.getPlayer().isValidMove(initialRow + 1, initialCol)) {
                         game.getPlayer().moveDown();
-                    } else {
-                        gameOutput.append("There is a wall blocking your way.\n");
+                        moved = true;
                     }
                     break;
                 case "left":
                     if (game.getPlayer().isValidMove(initialRow, initialCol - 1)) {
                         game.getPlayer().moveLeft();
-                    } else {
-                        gameOutput.append("There is a wall blocking your way.\n");
+                        moved = true;
                     }
                     break;
                 case "right":
                     if (game.getPlayer().isValidMove(initialRow, initialCol + 1)) {
                         game.getPlayer().moveRight();
-                    } else {
-                        gameOutput.append("There is a wall blocking your way.\n");
+                        moved = true;
                     }
                     break;
             }
 
             // Update the UI after each move
+            if (moved) {
+                game.getPlayer().incrementSteps(); // Increment step counter
+            } else {
+                gameOutput.append("There is a wall blocking your way.\n");
+            }
+
             updateUI();
         }
     }
 
-        public static void main(String[] args) {
-            SwingUtilities.invokeLater(() -> {
-                Game game = new Game(5, 10, 0, 0);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Game game = new Game(5, 10, 0, 0);
 
-                if (game.isDungeonSolvable()) {
-                    System.out.println("Dungeon is solvable.");
-                    new GameGUI(game);
-                } else {
-                    System.out.println("Dungeon is not solvable. Regenerating...");
-                    main(args); // Restart the game with a new dungeon
-                }
-            });
-        }
+            if (game.isDungeonSolvable()) {
+                System.out.println("Dungeon is solvable.");
+                new GameGUI(game);
+            } else {
+                System.out.println("Dungeon is not solvable. Regenerating...");
+                main(args); // Restart the game with a new dungeon
+            }
+        });
     }
-
+}
