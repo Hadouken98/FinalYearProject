@@ -3,6 +3,8 @@ import java.util.Random;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class GameGUI extends JFrame {
     private Game game;
@@ -66,6 +68,27 @@ public class GameGUI extends JFrame {
 
         // Make the frame visible
         setVisible(true);
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_UP:
+                        movePlayer("up");
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        movePlayer("down");
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        movePlayer("left");
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        movePlayer("right");
+                        break;
+                }
+            }
+        });
+        this.setFocusable(true); // Make sure the frame can receive key events
+
     }
 
     private JButton createStyledButton(String text, String tooltip, String iconPath) {
@@ -115,6 +138,63 @@ public class GameGUI extends JFrame {
             long elapsedTime = game.getPlayer().getElapsedTime();
             setTitle("Dungeon Game - Time: " + elapsedTime + " seconds - Steps: " + stepCount);
         }
+    }
+    private void movePlayer(String direction) {
+        // Save the current player position before moving
+        int initialRow = game.getPlayer().getRow();
+        int initialCol = game.getPlayer().getCol();
+
+        // Start the timer when the player makes the first move
+        if (!game.getPlayer().isTimerRunning()) {
+            game.getPlayer().startTimer();
+            timer.start();
+        }
+
+        // Handle player movement based on the direction
+        boolean moved = false;
+        switch (direction) {
+            case "up":
+                if (game.getPlayer().isValidMove(initialRow - 1, initialCol)) {
+                    game.getPlayer().moveUp();
+                    moved = true;
+                }
+                break;
+            case "down":
+                if (game.getPlayer().isValidMove(initialRow + 1, initialCol)) {
+                    game.getPlayer().moveDown();
+                    moved = true;
+                }
+                break;
+            case "left":
+                if (game.getPlayer().isValidMove(initialRow, initialCol - 1)) {
+                    game.getPlayer().moveLeft();
+                    moved = true;
+                }
+                break;
+            case "right":
+                if (game.getPlayer().isValidMove(initialRow, initialCol + 1)) {
+                    game.getPlayer().moveRight();
+                    moved = true;
+                }
+                break;
+        }
+
+        // Shift the walls randomly after each move
+        if (moved) {
+            Random random = new Random();
+            if (random.nextInt(8) == 0) {
+                game.shiftWallsRandomly(game.getPlayer());
+            }
+        }
+
+        // Update the UI after each move
+        if (moved) {
+            game.getPlayer().incrementSteps(); // Increment step counter
+        } else {
+            gameOutput.append("There is a wall blocking your way.\n");
+        }
+
+        updateUI();
     }
 
     private class MoveActionListener implements ActionListener {
