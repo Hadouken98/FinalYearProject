@@ -23,7 +23,7 @@ public class Game {
     // Mark the final room as the goal to reach.
     // Recursively call the method to continue generating the maze from new rooms.
     private int[] generateMaze(int row, int col, int[][] walls, Random random, List<int[]> accessibleRooms) {
-        int[][] directions = {{0, -2}, {0, 2}, {-2, 0}, {2, 0}};
+        int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 
         walls[row][col] = 0;
         accessibleRooms.add(new int[]{row, col});
@@ -42,15 +42,24 @@ public class Game {
             int newCol = col + direction[1];
 
             if (newRow >= 0 && newRow < walls.length && newCol >= 0 && newCol < walls.length && walls[newRow][newCol] != 0) {
-                walls[row + direction[0] / 2][col + direction[1] / 2] = 0;
+                walls[row + direction[0]][col + direction[1]] = 0;
 
                 int[] result = generateMaze(newRow, newCol, walls, random, accessibleRooms);
                 lastRoom = result != null ? result : lastRoom;
             }
         }
 
+        // Ensure at least one cell in the bottom row and the last column is always open
+        if (row == walls.length - 2) {
+            walls[row + 1][col] = 0;
+        }
+        if (col == walls.length - 2) {
+            walls[row][col + 1] = 0;
+        }
+
         return lastRoom;
     }
+
 
     public DungeonGraph getDungeonGraph() {
         return dungeonGraph;
@@ -153,8 +162,15 @@ public class Game {
             }
         }
 
-        dungeonGraph.setWalls(walls);
+        // Check if the dungeon is still solvable after shifting walls
+        if (!isDungeonSolvable()) {
+            // If not, shift walls again
+            shiftWallsRandomly(player);
+        } else {
+            dungeonGraph.setWalls(walls);
+        }
     }
+
     public void run() {
         Scanner scanner = new Scanner(System.in);
         boolean gameRunning = true;

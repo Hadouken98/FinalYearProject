@@ -139,6 +139,7 @@ public class GameGUI extends JFrame {
             setTitle("Dungeon Game - Time: " + elapsedTime + " seconds - Steps: " + stepCount);
         }
     }
+
     private void movePlayer(String direction) {
         // Save the current player position before moving
         int initialRow = game.getPlayer().getRow();
@@ -268,14 +269,9 @@ public class GameGUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Game game = new Game(5, 10, 0, 0);
-
-            if (game.isDungeonSolvable()) {
-                System.out.println("Dungeon is solvable.");
-                new GameGUI(game);
-            } else {
-                System.out.println("Dungeon is not solvable. Regenerating...");
-                main(args); // Restart the game with a new dungeon
-            }
+            new GameGUI(game);
         });
     }
 }
+
+
