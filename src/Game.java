@@ -137,7 +137,7 @@ public class Game {
         return walls;
     }
 
-    void shiftWallsRandomly(Player player) {
+    boolean shiftWallsRandomly(Player player) {
         int[][] walls = dungeonGraph.getWalls();
         Random random = new Random();
 
@@ -163,13 +163,14 @@ public class Game {
         }
 
         // Check if the dungeon is still solvable after shifting walls
-        if (!isDungeonSolvable()) {
-            // If not, shift walls again
-            shiftWallsRandomly(player);
-        } else {
+        if (isDungeonSolvable()) {
             dungeonGraph.setWalls(walls);
+            return true;
+        } else {
+            return false;
         }
     }
+
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
