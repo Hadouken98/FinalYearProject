@@ -1,3 +1,4 @@
+import java.security.Key;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.LinkedList;
@@ -7,18 +8,22 @@ import java.util.List;
 public class Game {
     private DungeonGraph dungeonGraph;
     private Player player;
+    private GameKey key;
 
     private static int finalRow;
 
     private static int finalCol;
 
+
+
     public Game(int minSize, int maxSize, int initialRow, int initialCol) {
         int size = generateRandomSize(minSize, maxSize);
         int[][] walls = generateDungeonWalls(size);
-        dungeonGraph = new DungeonGraph();
+        dungeonGraph = new DungeonGraph(this);
         dungeonGraph.setWalls(walls);
         player = new Player(initialRow, initialCol, dungeonGraph);
         shiftWallsRandomly(player);
+        placeKey();
         Random random = new Random();
         do {
             finalRow = random.nextInt(maxSize);
@@ -78,6 +83,10 @@ public class Game {
     public static int getFinalRow() {
         return finalRow;
     }
+    public GameKey getKey() {
+        return key;
+    }
+
 
     public static int getFinalCol() {
         return finalCol;
@@ -185,7 +194,23 @@ public class Game {
             return false;
         }
     }
+    private void placeKey() {
+        Random random = new Random();
+        int keyRow, keyCol;
+        do {
+            keyRow = random.nextInt(dungeonGraph.getWalls().length);
+            keyCol = random.nextInt(dungeonGraph.getWalls()[0].length);
+        } while (dungeonGraph.getWalls()[keyRow][keyCol] != 0); // Keep looking if it's a wall
+        key = new GameKey(keyRow, keyCol);
+    }
 
+    void checkForKey() {
+        if (player.getRow() == key.getRow() && player.getCol() == key.getCol()) {
+            player.pickUpKey();
+            System.out.println("You found a key! You can now enter the final room.");
+            key = null; // Remove the key from the game
+        }
+    }
 
     public void run() {
         Scanner scanner = new Scanner(System.in);

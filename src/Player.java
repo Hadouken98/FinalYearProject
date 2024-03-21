@@ -5,6 +5,8 @@ public class Player {
     private long startTime; // To store the start time when the player starts moving
     private boolean timerRunning;
 
+    private boolean hasKey;
+
 
     private DungeonGraph dungeonGraph;
 
@@ -14,11 +16,18 @@ public class Player {
         this.dungeonGraph = dungeonGraph;
         this.steps = 0;
         this.timerRunning = false;
+        this.hasKey = false; // The player starts without the key initially
     }
 
     public boolean isValidMove(int newRow, int newCol) {
         // Check if the new position is within the boundaries of the dungeon
         if (newRow < 0 || newRow >= dungeonGraph.getWalls().length || newCol < 0 || newCol >= dungeonGraph.getWalls()[0].length) {
+            return false;
+        }
+
+        // Check if the player is trying to enter the final room without the key
+        if (newRow == Game.getFinalRow() && newCol == Game.getFinalCol() && !hasKey) {
+            System.out.println("You need a key to enter the final room.");
             return false;
         }
 
@@ -43,6 +52,7 @@ public class Player {
 
         return true;
     }
+
 
     public void moveUp() {
         if (isValidMove(row - 1, col)) {
@@ -104,5 +114,12 @@ public class Player {
     public boolean isTimerRunning() {
         return timerRunning;
     }
+    public boolean hasKey() {
+        return hasKey;
+    }
 
+    public void pickUpKey() {
+        hasKey = true;
+    }
 }
+

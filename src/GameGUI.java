@@ -137,12 +137,15 @@ public class GameGUI extends JFrame {
         updateMiniMap();
 
         // Check if the player has won
-        // Check if the player has won
         if (game.getPlayer().getRow() == game.getFinalRow() && game.getPlayer().getCol() == game.getFinalCol()) {
-            game.getPlayer().stopTimer(); // Stop the timer
-            long elapsedTime = game.getPlayer().getElapsedTime();
-            gameOutput.append("\nCongratulations! You have reached the final room. You win!");
-            gameOutput.append("\nTime taken: " + elapsedTime + " seconds");
+            if (game.getPlayer().hasKey()) {
+                game.getPlayer().stopTimer(); // Stop the timer
+                long elapsedTime = game.getPlayer().getElapsedTime();
+                gameOutput.append("\nCongratulations! You have reached the final room. You win!");
+                gameOutput.append("\nTime taken: " + elapsedTime + " seconds");
+            } else {
+                gameOutput.append("\nYou need a key to enter the final room.");
+            }
         } else if (game.getPlayer().isTimerRunning()) {
             // Display the elapsed time if the player hasn't won yet
             long elapsedTime = game.getPlayer().getElapsedTime();
@@ -209,6 +212,7 @@ public class GameGUI extends JFrame {
         // Update the UI after each move
         if (moved) {
             game.getPlayer().incrementSteps(); // Increment step counter
+            game.checkForKey();
         } else {
             gameOutput.append("There is a wall blocking your way.\n");
         }
