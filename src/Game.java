@@ -26,8 +26,8 @@ public class Game {
         placeKey();
         Random random = new Random();
         do {
-            finalRow = random.nextInt(maxSize);
-            finalCol = random.nextInt(maxSize);
+            finalRow = random.nextInt(size);
+            finalCol = random.nextInt(size);
         } while (dungeonGraph.getWalls()[finalRow][finalCol] != 0); // Keep looking if it's a wall
     }
 

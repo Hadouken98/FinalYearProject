@@ -290,7 +290,7 @@ public class GameGUI extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            Game game = new Game(10, 11, 0, 0);
+            Game game = new Game(5, 10, 0, 0);
             new GameGUI(game);
         });
     }
