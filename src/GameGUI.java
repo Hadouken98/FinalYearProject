@@ -13,6 +13,8 @@ public class GameGUI extends JFrame {
     private long startTime; // To store the start time when the player starts moving
     private int stepCount; // To count the number of steps/moves
 
+    private JLabel miniMapLabel;
+
     public GameGUI(Game game) {
         this.game = game;
         this.stepCount = 0;
@@ -51,10 +53,14 @@ public class GameGUI extends JFrame {
         buttonPanel.add(leftButton);
         buttonPanel.add(rightButton);
 
+        // Mini Map
+        miniMapLabel = new JLabel();
+
         // Create a panel to hold both the game output and buttons
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10)); // Added spacing between components
         mainPanel.add(buttonPanel, BorderLayout.WEST);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(miniMapLabel, BorderLayout.EAST);
 
         // Add the main panel to the frame
         add(mainPanel);
@@ -62,6 +68,8 @@ public class GameGUI extends JFrame {
         // Create a timer with a 1-second delay
         timer = new Timer(1000, new TimerActionListener());
         timer.setInitialDelay(0); // Start the timer immediately
+
+
 
         // Update the UI to reflect the initial game state
         updateUI();
@@ -126,6 +134,8 @@ public class GameGUI extends JFrame {
         // Display the step count
         gameOutput.append("\nSteps: " + game.getPlayer().getSteps());
 
+        updateMiniMap();
+
         // Check if the player has won
         if (game.getPlayer().getRow() == game.getDungeonGraph().getWalls().length - 1 &&
                 game.getPlayer().getCol() == game.getDungeonGraph().getWalls().length - 1) {
@@ -138,6 +148,14 @@ public class GameGUI extends JFrame {
             long elapsedTime = game.getPlayer().getElapsedTime();
             setTitle("Dungeon Game - Time: " + elapsedTime + " seconds - Steps: " + stepCount);
         }
+    }
+    private void updateMiniMap() {
+        int[][] walls = game.getDungeonGraph().getWalls();
+        int mazeSize = walls.length;
+
+        String miniMap = "<html><font size=\"4\" color=\"blue\">Coordinates:<br>Player Position: (" + game.getPlayer().getRow() + ", " + game.getPlayer().getCol() + ")<br>" +
+                "Maze Size: " + mazeSize + " x " + mazeSize + "</font></html>";
+        miniMapLabel.setText(miniMap);
     }
 
     private void movePlayer(String direction) {

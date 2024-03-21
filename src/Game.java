@@ -16,6 +16,7 @@ public class Game {
         dungeonGraph = new DungeonGraph();
         dungeonGraph.setWalls(walls);
         player = new Player(initialRow, initialCol, dungeonGraph);
+        shiftWallsRandomly(player);
     }
 
     // Uses recursive backtracking to generate the maze, essentially DFS, Depth-First-Search

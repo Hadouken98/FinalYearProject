@@ -5,6 +5,8 @@ public class Player {
     private long startTime; // To store the start time when the player starts moving
     private boolean timerRunning;
 
+
+
     private DungeonGraph dungeonGraph;
 
     public Player(int initialRow, int initialCol, DungeonGraph dungeonGraph) {
@@ -103,4 +105,5 @@ public class Player {
     public boolean isTimerRunning() {
         return timerRunning;
     }
+
 }
