@@ -137,8 +137,8 @@ public class GameGUI extends JFrame {
         updateMiniMap();
 
         // Check if the player has won
-        if (game.getPlayer().getRow() == game.getDungeonGraph().getWalls().length - 1 &&
-                game.getPlayer().getCol() == game.getDungeonGraph().getWalls().length - 1) {
+        // Check if the player has won
+        if (game.getPlayer().getRow() == game.getFinalRow() && game.getPlayer().getCol() == game.getFinalCol()) {
             game.getPlayer().stopTimer(); // Stop the timer
             long elapsedTime = game.getPlayer().getElapsedTime();
             gameOutput.append("\nCongratulations! You have reached the final room. You win!");
@@ -286,7 +286,7 @@ public class GameGUI extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            Game game = new Game(5, 10, 0, 0);
+            Game game = new Game(10, 11, 0, 0);
             new GameGUI(game);
         });
     }

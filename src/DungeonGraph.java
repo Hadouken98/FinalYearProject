@@ -1,5 +1,6 @@
 public class DungeonGraph {
     private int[][] walls; // 2D array representing the dungeon walls
+    private Game game; // Reference to the game Instance
 
     public void setWalls(int[][] walls) {
         this.walls = walls;
@@ -31,6 +32,8 @@ public class DungeonGraph {
             for (int j = 0; j < mazeSize; j++) {
                 if (i == player.getRow() && j == player.getCol()) {
                     output.append(" 🤠 "); // Player's position
+                } else if (i == Game.getFinalRow() && j == Game.getFinalCol()) {
+                    output.append(" 🏁 "); // Final room
                 } else if (walls[i][j] != 0) {
                     output.append("█"); // Wall
                 } else {

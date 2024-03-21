@@ -8,7 +8,9 @@ public class Game {
     private DungeonGraph dungeonGraph;
     private Player player;
 
-    private int[] finalRoom;
+    private static int finalRow;
+
+    private static int finalCol;
 
     public Game(int minSize, int maxSize, int initialRow, int initialCol) {
         int size = generateRandomSize(minSize, maxSize);
@@ -17,6 +19,11 @@ public class Game {
         dungeonGraph.setWalls(walls);
         player = new Player(initialRow, initialCol, dungeonGraph);
         shiftWallsRandomly(player);
+        Random random = new Random();
+        do {
+            finalRow = random.nextInt(maxSize);
+            finalCol = random.nextInt(maxSize);
+        } while (dungeonGraph.getWalls()[finalRow][finalCol] != 0); // Keep looking if it's a wall
     }
 
     // Uses recursive backtracking to generate the maze, essentially DFS, Depth-First-Search
@@ -67,6 +74,13 @@ public class Game {
     }
     public Player getPlayer() {
         return player;
+    }
+    public static int getFinalRow() {
+        return finalRow;
+    }
+
+    public static int getFinalCol() {
+        return finalCol;
     }
     private int generateRandomSize(int minSize, int maxSize) {
         Random random = new Random();
@@ -225,7 +239,7 @@ public class Game {
             }
 
             // Check if the player has reached the last room
-            if (player.getRow() == lastRoomIndex && player.getCol() == lastRoomIndex) {
+            if (player.getRow() == finalRow && player.getCol() == finalCol) {
                 System.out.println("Congratulations! You have reached the final room. You win!");
                 gameRunning = false;
             } else {

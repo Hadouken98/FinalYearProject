@@ -6,7 +6,6 @@ public class Player {
     private boolean timerRunning;
 
 
-
     private DungeonGraph dungeonGraph;
 
     public Player(int initialRow, int initialCol, DungeonGraph dungeonGraph) {
